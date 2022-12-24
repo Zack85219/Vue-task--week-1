@@ -32,17 +32,20 @@
                 </tr>
               </thead>
               <tbody>
+                <!-- 讓tr這個HTML元素跑products陣列裡物件(以item表示)的迴圈，順便綁定每個物件的key -->
                 <tr v-for="item in products" :key="item.id">
                   <td width="150">{{ item.title }}</td>
                   <td width="120">{{item.origin_price }}</td>
                   <td width="120">{{item.price }}</td>
                   <td width="150">
+                    <!-- 如果 item.is_enabled的表達式是true，<span>啟用</span>存在。如果 item.is_enabled的表達式是false，情況相反。-->
                     <span class="text-success" v-if="item.is_enabled"
                       >啟用</span
                     >
                     <span v-else>未啟用</span>
                   </td>
                   <td width="120">
+                    <!-- 按下此<button>， temp會等於item的值(參考item物件的實體記憶體位置) -->
                     <button
                       type="button"
                       class="btn btn-primary"
@@ -58,6 +61,7 @@
           </div>
           <div class="col-md-6">
             <h2>單一產品細節</h2>
+            <!-- 如果temp.title的表達式是true，此<div>HTML元素存在，<p>HTML元素不存在。-如果temp.title的表達式是false，情況相反。 !-->
             <div v-if="temp.title">
               <div class="card mb-3">
                 <img
@@ -83,9 +87,9 @@
                   </div>
                 </div>
               </div>
-
-              <span v-for="(image, id) in temp.imagesUrl" v-bind:key="id">
-                <img v-if="image" v-bind:src="image" class="images m-2" />
+              <!-- 參數image是陣列temp.imagesUrl的元素，參數id是陣列temp.imagesUrl的索引 -->
+              <span v-for="(image, id) in temp.imagesUrl" :key="id">
+                <img v-if="image" :src="image" class="images m-2" />
               </span>
             </div>
             <p v-else class="text-secondary">請選擇一個商品查看</p>

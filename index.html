@@ -63,7 +63,7 @@
             <h2>單一產品細節</h2>
             <!-- 如果temp.title的表達式是true，此<div>HTML元素存在，<p>HTML元素不存在。-如果temp.title的表達式是false，情況相反。 !-->
             <div v-if="temp.title">
-              <div class="card mb-3">
+              <template class="card mb-3">
                 <img
                   :src="temp.imageUrl"
                   class="card-img-top primary-image"
@@ -86,7 +86,7 @@
                     {{temp.unit}} / 元
                   </div>
                 </div>
-              </div>
+              </template>
               <!-- 參數image是陣列temp.imagesUrl的元素，參數id是陣列temp.imagesUrl的索引 -->
               <span v-for="(image, id) in temp.imagesUrl" :key="id">
                 <img v-if="image" :src="image" class="images m-2" />

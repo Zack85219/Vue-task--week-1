@@ -107,7 +107,7 @@
                       :alt="tempProduct.id"
                     />
                     <button
-                      class="btn btn-outline-danger btn-sm d-block w-100"
+                      class="btn btn-outline-danger btn-sm d-block w-100 mt-2"
                       @click="delImage"
                       v-if="!tempProduct.imagesUrl"
                     >
@@ -138,7 +138,7 @@
                     />
                     <div>
                       <button
-                        class="btn btn-outline-danger btn-sm d-block w-100"
+                        class="btn btn-outline-danger btn-sm d-block w-100 mt-2"
                         @click="delImage(id)"
                       >
                         刪除圖片
@@ -147,13 +147,13 @@
                   </div>
                   <input
                     type="text"
-                    class="form-control"
+                    class="form-control mt-4"
                     placeholder="請輸入圖片連結"
                     v-model="newImage"
                   />
                   <div>
                     <button
-                      class="btn btn-outline-primary btn-sm d-block w-100"
+                      class="btn btn-outline-primary btn-sm d-block w-100 mt-2"
                       type="button"
                       @click="createImage"
                     >
@@ -320,7 +320,7 @@
           </div>
         </div>
       </div>
-      <test />
+      <pagination />
 
       <!-- Modal -->
     </div>
@@ -343,9 +343,8 @@
 
     <script type="module">
       import { createApp } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js";
-      import test from "./pagination.js";
-      // 為什麼在showProductModal外宣告editMdal，會無法渲染網頁
-      let editModal = document.getElementById("productModal");
+      import pagination from "./pagination.js";
+      
       let productModal = null;
       let delModal = null;
       const app = {
@@ -362,7 +361,7 @@
           };
         },
         components: {
-          test,
+          pagination,
         },
         methods: {
           checkAdmin() {
@@ -378,7 +377,7 @@
               });
           },
           getData() {
-            const apiUrl = `${this.apiEP}/api/${this.apiPath}/admin/products/all`;
+            const apiUrl = `${this.apiEP}/api/${this.apiPath}/admin/products`;
             axios
               .get(apiUrl)
               .then((res) => {
@@ -391,7 +390,7 @@
           showEditModal(item) {
             this.is_newItem = false;
             this.tempProduct = { ...item };
-
+        
             // 打開Modal
             productModal.show();
           },
@@ -406,36 +405,26 @@
             // 打開Modal
             delModal.show();
           },
-          // 可以改寫得像老師一樣精簡
+          
           updateData(id) {
-            const updateApi = `${this.apiEP}/api/${this.apiPath}/admin/product/${id}`;
-            const addApi = `${this.apiEP}/api/${this.apiPath}/admin/product`;
-
-            // 更新產品
-            if (!this.is_newItem) {
-              axios
-                .put(updateApi, { data: this.tempProduct })
-                .then((res) => {
-                  this.getData();
-                  alert(res.data.message);
-                })
-                .catch((err) => {
-                  console.log(err.data);
-                });
+            let api = "";
+            let method = "";
+            if(!this.is_newItem){
+              api = `${this.apiEP}/api/${this.apiPath}/admin/product/${id}`;
+              method = "put";
             }
-            // 新增產品
-            if (this.is_newItem) {
-              axios
-                .post(addApi, { data: this.tempProduct })
-                .then((res) => {
-                  this.getData();
-                  alert(res.data.message);
-                })
-                .catch((err) => {
-                  console.log(err.data);
-                });
+            if(this.is_newItem){
+              api = `${this.apiEP}/api/${this.apiPath}/admin/product`;
+              method = "post";
             }
+            axios[method](api, {data: this.tempProduct}).then((res)=>{
+                this.getData();
+                alert(res.data.message);
+            }).catch((err)=>{
+              console.log(err.data);
+            });
             productModal.hide();
+
           },
           deleteData() {
             const delApi = `${this.apiEP}/api/${this.apiPath}/admin/product/${this.tempProduct.id}`;
@@ -467,7 +456,7 @@
               this.tempProduct.imagesUrl.push(this.newImage);
             }
 
-            // this.updateData(this.tempProduct.id);
+            this.newImage = "";
           },
           delImage(id) {
             if (this.tempProduct.imagesUrl) {
@@ -489,15 +478,15 @@
           );
           axios.defaults.headers.common.Authorization = token;
 
+        
           // 建立Modal實體
           productModal = new bootstrap.Modal(
             document.getElementById("productModal")
-            //editModal
           );
           delModal = new bootstrap.Modal(
             document.getElementById("delProductModal")
           );
-          //console.log(editModal);
+          
           this.checkAdmin();
         },
       };

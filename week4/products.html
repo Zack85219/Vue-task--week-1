@@ -73,11 +73,78 @@
         aria-labelledby="productModalLabel"
         aria-hidden="true"
       >
+        <product-modal
+          :is-new="isNew"
+          :temp-product="tempProduct"
+          @emit-create-img="createImage"
+          :update-data="updateData"
+          :del-image="delImage"
+        ></product-modal>
+      </div>
+
+      <div
+        id="delProductModal"
+        ref="delProductModal"
+        class="modal fade"
+        tabindex="-1"
+        aria-labelledby="delProductModalLabel"
+        aria-hidden="true"
+      >
+        <del-modal
+          :temp-product="tempProduct"
+          :del-data="deleteData"
+        ></del-modal>
+      </div>
+      <!-- 記得把getProduct轉成get-product。把P轉小寫。<pagination/>是區域元件，要放在<div id="app">...</div>裡面。-->
+      <pagination :pages="page" :get-product="getData" />
+    </div>
+
+    <script type="text/x-template" id="del-modal-template">
+      <div>
+        <div class="modal-dialog">
+          <div class="modal-content border-0">
+            <div class="modal-header bg-danger text-white">
+              <h5 id="delProductModalLabel" class="modal-title">
+                <span>刪除產品</span>
+              </h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="modal-body">
+              是否刪除
+              <strong class="text-danger">{{tempProduct.title}}</strong>
+              商品(刪除後將無法恢復)。
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-outline-secondary"
+                data-bs-dismiss="modal"
+              >
+                取消
+              </button>
+              <button type="button" class="btn btn-danger" @click="delData">
+                確認刪除
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </script>
+
+    <script type="text/x-template" id="product-modal-template">
+      <!-- 要使用<div></div>包含整段程式碼 -->
+      <div>
         <div class="modal-dialog modal-xl">
           <div class="modal-content border-0">
             <div class="modal-header bg-dark text-white">
               <h5 id="productModalLabel" class="modal-title">
-                <span v-if="is_newItem">新增產品</span>
+                <!-- 注意props的大小寫 ，為甚麼isNew沒變化?-->
+                <span v-if="isNew">新增產品</span>
                 <span v-else>編輯產品</span>
               </h5>
               <button
@@ -113,6 +180,7 @@
                     >
                       刪除圖片
                     </button>
+
                   </div>
                   <div
                     class="mb-2"
@@ -134,7 +202,7 @@
                     <img
                       class="img-fluid"
                       :src=" tempProduct.imagesUrl[id]"
-                      :alt=""
+                      alt="image"
                     />
                     <div>
                       <button
@@ -279,51 +347,7 @@
           </div>
         </div>
       </div>
-      <div
-        id="delProductModal"
-        ref="delProductModal"
-        class="modal fade"
-        tabindex="-1"
-        aria-labelledby="delProductModalLabel"
-        aria-hidden="true"
-      >
-        <div class="modal-dialog">
-          <div class="modal-content border-0">
-            <div class="modal-header bg-danger text-white">
-              <h5 id="delProductModalLabel" class="modal-title">
-                <span>刪除產品</span>
-              </h5>
-              <button
-                type="button"
-                class="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              ></button>
-            </div>
-            <div class="modal-body">
-              是否刪除
-              <strong class="text-danger">{{tempProduct.title}}</strong>
-              商品(刪除後將無法恢復)。
-            </div>
-            <div class="modal-footer">
-              <button
-                type="button"
-                class="btn btn-outline-secondary"
-                data-bs-dismiss="modal"
-              >
-                取消
-              </button>
-              <button type="button" class="btn btn-danger" @click="deleteData">
-                確認刪除
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-      <pagination />
-
-      <!-- Modal -->
-    </div>
+    </script>
 
     <script
       src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.9.1/axios.min.js"
@@ -340,158 +364,7 @@
       integrity="sha384-j0CNLUeiqtyaRmlzUHCPZ+Gy5fQu0dQ6eZ/xAww941Ai1SxSY+0EQqNXNE6DZiVc"
       crossorigin="anonymous"
     ></script>
-
-    <script type="module">
-      import { createApp } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js";
-      import pagination from "./pagination.js";
-      
-      let productModal = null;
-      let delModal = null;
-      const app = {
-        data() {
-          return {
-            apiEP: "https://vue3-course-api.hexschool.io/v2",
-            apiPath: "59487@@",
-            is_newItem: false,
-            products: [],
-            tempProduct: {
-              imagesUrl: [],
-            },
-            newImage: "",
-          };
-        },
-        components: {
-          pagination,
-        },
-        methods: {
-          checkAdmin() {
-            const apiUrl = `${this.apiEP}/api/user/check`;
-            axios
-              .post(apiUrl)
-              .then((res) => {
-                this.getData();
-              })
-              .catch((err) => {
-                console.log(err.data);
-                window.location = "login.html";
-              });
-          },
-          getData() {
-            const apiUrl = `${this.apiEP}/api/${this.apiPath}/admin/products`;
-            axios
-              .get(apiUrl)
-              .then((res) => {
-                this.products = res.data.products;
-              })
-              .catch((err) => {
-                console.log(err.data);
-              });
-          },
-          showEditModal(item) {
-            this.is_newItem = false;
-            this.tempProduct = { ...item };
-        
-            // 打開Modal
-            productModal.show();
-          },
-          showBlankModal() {
-            // 打開Modal
-            this.is_newItem = true;
-            this.tempProduct = {};
-            productModal.show();
-          },
-          showDelModal(item) {
-            this.tempProduct = { ...item };
-            // 打開Modal
-            delModal.show();
-          },
-          
-          updateData(id) {
-            let api = "";
-            let method = "";
-            if(!this.is_newItem){
-              api = `${this.apiEP}/api/${this.apiPath}/admin/product/${id}`;
-              method = "put";
-            }
-            if(this.is_newItem){
-              api = `${this.apiEP}/api/${this.apiPath}/admin/product`;
-              method = "post";
-            }
-            axios[method](api, {data: this.tempProduct}).then((res)=>{
-                this.getData();
-                alert(res.data.message);
-            }).catch((err)=>{
-              console.log(err.data);
-            });
-            productModal.hide();
-
-          },
-          deleteData() {
-            const delApi = `${this.apiEP}/api/${this.apiPath}/admin/product/${this.tempProduct.id}`;
-
-            axios
-              .delete(delApi, { data: this.tempProduct })
-              .then((res) => {
-                this.getData();
-                alert(res.data.message);
-                delModal.hide();
-              })
-              .catch((err) => {
-                console.log(err.data);
-              });
-          },
-          createImage() {
-            if (!this.tempProduct.imageUrl) {
-              this.tempProduct.imageUrl = this.newImage;
-            } else if (
-              !this.tempProduct.imagesUrl &&
-              this.tempProduct.imageUrl
-            ) {
-              this.tempProduct.imagesUrl = [];
-              this.tempProduct.imagesUrl.push(this.newImage);
-            } else if (
-              this.tempProduct.imagesUrl &&
-              this.tempProduct.imageUrl
-            ) {
-              this.tempProduct.imagesUrl.push(this.newImage);
-            }
-
-            this.newImage = "";
-          },
-          delImage(id) {
-            if (this.tempProduct.imagesUrl) {
-              this.tempProduct.imagesUrl.splice(id, 1);
-            } else {
-              this.tempProduct.imageUrl = null;
-            }
-
-            alert("已刪除圖片");
-          },
-        },
-        computed: {},
-        watch: {},
-        mounted() {
-          // 取出Token
-          const token = document.cookie.replace(
-            /(?:(?:^|.*;\s*)hexToken\s*=\s*([^;]*).*$)|^.*$/,
-            "$1"
-          );
-          axios.defaults.headers.common.Authorization = token;
-
-        
-          // 建立Modal實體
-          productModal = new bootstrap.Modal(
-            document.getElementById("productModal")
-          );
-          delModal = new bootstrap.Modal(
-            document.getElementById("delProductModal")
-          );
-          
-          this.checkAdmin();
-        },
-      };
-
-      createApp(app).mount("#app");
-    </script>
+    <!-- <script>...</script>的type要是module才能import其他js檔案 -->
+    <script src="./products.js" type="module"></script>
   </body>
 </html>

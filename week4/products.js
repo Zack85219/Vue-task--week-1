@@ -34,15 +34,18 @@ const app = createApp({
     },
     getData(page = 1) {
       const apiUrl = `${this.apiEP}/api/${this.apiPath}/admin/products?page=${page}`;
-      axios
-        .get(apiUrl)
-        .then((res) => {
-          this.products = res.data.products;
-          this.page = res.data.pagination;
-        })
-        .catch((err) => {
-          console.log(err.data);
-        });
+      // 避免重複點擊所發出的get請求
+      if (this.page.current_page !== page) {
+        axios
+          .get(apiUrl)
+          .then((res) => {
+            this.products = res.data.products;
+            this.page = res.data.pagination;
+          })
+          .catch((err) => {
+            console.log(err.data);
+          });
+      }
     },
     showEditModal(item) {
       this.isNew = false;
@@ -78,11 +81,12 @@ const app = createApp({
         .then((res) => {
           this.getData();
           alert(res.data.message);
+          productModal.hide();
         })
         .catch((err) => {
           console.log(err.data);
+          alert("編輯/新增失敗!");
         });
-      productModal.hide();
     },
     deleteData() {
       const delApi = `${this.apiEP}/api/${this.apiPath}/admin/product/${this.tempProduct.id}`;
@@ -147,7 +151,7 @@ app.component("productModal", {
     };
   },
   template: "#product-modal-template",
-  // 內部元件裡無法直接用v-modal與外部元件互動，要再看一下教學
+  // 內部元件裡無法直接用v-modal與外部元件互動
   props: ["isNew", "tempProduct", "updateData", "delImage"],
   methods: {
     // emit的使用方法
@@ -155,7 +159,6 @@ app.component("productModal", {
     createImage() {
       console.log("img");
       this.$emit("emit-create-img", this.newImage);
-      // 這是內部元件的newImage
       this.newImage = "";
     },
   },

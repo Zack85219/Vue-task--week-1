@@ -66,8 +66,7 @@ Vue.createApp({
         .then((res) => {
           this.loadingStatus.loadingItem = "";
           this.product = res.data.product;
-          console.log(this.product);
-          //console.log(this);
+
           this.$refs.userProductModal.openModal();
         })
         .catch((err) => {
@@ -134,7 +133,6 @@ Vue.createApp({
         .get(url)
         .then((res) => {
           this.cart = res.data.data;
-          console.log(this.cart);
         })
         .catch((err) => {
           alert(err.res.data.message);

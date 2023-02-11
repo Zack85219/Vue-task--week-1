@@ -160,6 +160,7 @@ Vue.createApp({
         .then((res) => {
           alert(res.data.message);
           this.$refs.form.resetForm();
+          this.message = "";
           this.getCart();
         })
         .catch((err) => {

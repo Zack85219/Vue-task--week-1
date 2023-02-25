@@ -66,5 +66,11 @@ export default {
         });
     },
   },
+  watch: {
+    user() {
+      console.log(this.user.username);
+      console.log(this.user.password);
+    },
+  },
 };
 </script>

@@ -12,7 +12,11 @@
             class="btn btn-outline-secondary"
             >連結單一產品</RouterLink
           >
-          <button class="btn btn-outline-primary" @click="addToCart(item.id)">
+          <button
+            class="btn btn-outline-primary"
+            @click="addToCart(item.id)"
+            :disabled="status.loadingItem === item.id"
+          >
             加入購物車
           </button>
         </td>
@@ -29,6 +33,9 @@ export default {
   data() {
     return {
       products: [],
+      status: {
+        loadingItem: "",
+      },
     };
   },
   components: {
@@ -50,11 +57,14 @@ export default {
         product_id: id,
         qty: 1,
       };
+      this.status.loadingItem = id;
       // data要再包一層物件
       this.$http
         .post(`${VITE_API_URL}/api/${VITE_API_PATH}/cart`, { data })
         .then((res) => {
           console.log(res.data);
+          this.status.loadingItem = "";
+          alert("已將此商品加入購物車");
         })
         .catch((err) => {
           console.log(err.message);

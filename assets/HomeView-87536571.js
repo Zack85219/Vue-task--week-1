@@ -1,0 +1,1 @@
+import{_ as o,o as t,c as s,F as n,d as e}from"./index-633f8d7a.js";const c={components:{}},a=e("div",{class:"home"},"我是home",-1),r=e("button",{class:"btn btn-primary"},"114",-1);function _(m,p,d,i,l,f){return t(),s(n,null,[a,r],64)}const h=o(c,[["render",_]]);export{h as default};
